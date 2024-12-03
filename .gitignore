@@ -1,3 +1,4 @@
 .DS_Store
-db_credentials.php
-debug.log
+private/db_credentials.php
+*.log
+.vscode/

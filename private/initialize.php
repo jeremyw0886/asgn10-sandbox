@@ -1,9 +1,7 @@
 <?php
-ob_start(); // turn on output buffering
+ob_start();
 
 // Assign file paths to PHP constants
-// __FILE__ returns the current path to this file
-// dirname() returns the path to the parent directory
 define("PRIVATE_PATH", dirname(__FILE__));
 define("PROJECT_PATH", dirname(PRIVATE_PATH));
 define("PUBLIC_PATH", PROJECT_PATH . '/public');
@@ -14,7 +12,6 @@ $public_end = strpos($_SERVER['SCRIPT_NAME'], '/public') + 7;
 $doc_root = substr($_SERVER['SCRIPT_NAME'], 0, $public_end);
 define("WWW_ROOT", $doc_root);
 
-// Load class definitions manually
 require_once('functions.php');
 require_once('validation_functions.php');
 require_once('db_credentials.php');
@@ -23,7 +20,6 @@ require_once('classes/databaseobject.class.php');
 require_once('classes/bird.class.php');
 require_once('classes/member.class.php');
 require_once('classes/session.class.php');
-require_once('classes/parsecsv.class.php');
 
 // Initialize Database connection
 Database::db_connect();
@@ -33,9 +29,9 @@ DatabaseObject::set_database($database);
 $session = new Session;
 
 function require_login() {
-  global $session;
-  if(!$session->is_logged_in()) {
-    redirect_to(url_for('/members/login.php'));
-  }
+    global $session;
+    if(!$session->is_logged_in()) {
+        redirect_to(url_for('/members/login.php'));
+    }
 }
 ?>

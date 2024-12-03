@@ -44,22 +44,22 @@ class Bird extends DatabaseObject {
     }
 
     protected function validate() {
-        $this->errors = [];
+       $this->errors = [];
 
         if(is_blank($this->common_name)) {
-            $this->errors[] = "Common name cannot be blank.";
+            $this->errors['common_name'] = "Common name cannot be blank.";
         }
         if(is_blank($this->habitat)) {
-            $this->errors[] = "Habitat cannot be blank.";
+            $this->errors['habitat'] = "Habitat cannot be blank.";
         }
         if(is_blank($this->food)) {
-            $this->errors[] = "Food cannot be blank.";
+            $this->errors['food'] = "Food cannot be blank.";
         }
         if(is_blank($this->conservation_id)) {
-            $this->errors[] = "Conservation ID cannot be blank.";
+            $this->errors['conservation_id'] = "Conservation status cannot be blank.";
         }
         if(is_blank($this->backyard_tips)) {
-            $this->errors[] = "Backyard tips cannot be blank.";
+            $this->errors['backyard_tips'] = "Backyard tips cannot be blank.";
         }
 
         return $this->errors;

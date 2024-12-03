@@ -5,59 +5,29 @@ $errors = [];
 $username = '';
 $password = '';
 
-if(is_post_request()) {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
+if (is_post_request()) {
+  $username = $_POST['username'] ?? '';
+  $password = $_POST['password'] ?? '';
 
-    // DEBUG OUTPUT
-    echo "<div style='background: #f0f0f0; padding: 10px; margin: 10px;'>";
-    echo "<strong>Debug Information:</strong><br>";
-    echo "Attempting login with username: " . h($username) . "<br>";
-    echo "Password length: " . strlen($password) . "<br>";
-    echo "Password characters: ";
-    for($i = 0; $i < strlen($password); $i++) {
-        echo ord($password[$i]) . " ";
-    }
-    echo "<br>";
-    
+  // Validations
+  if (is_blank($username)) {
+    $errors['username'] = "Username cannot be blank.";
+  }
+  if (is_blank($password)) {
+    $errors['password'] = "Password cannot be blank.";
+  }
+
+  // if no errors, try to login
+  if (empty($errors)) {
     $member = Member::find_by_username($username);
-    
-    if($member) {
-        echo "User found in database<br>";
-        echo "Stored hash: " . $member->hashed_password . "<br>";
-        echo "Hash length: " . strlen($member->hashed_password) . "<br>";
-        echo "Attempting to verify password...<br>";
-        
-        // Test with both trimmed and untrimmed password
-        echo "Testing with trimmed password: " . (password_verify(trim($password), $member->hashed_password) ? 'true' : 'false') . "<br>";
-        echo "Testing with untrimmed password: " . (password_verify($password, $member->hashed_password) ? 'true' : 'false') . "<br>";
-        
-        $verify_result = $member->verify_password($password);
-        echo "Final password verification result: " . ($verify_result ? 'true' : 'false') . "<br>";
+    if ($member && $member->verify_password($password)) {
+      $session->login($member);
+      $session->message('Login successful.');
+      redirect_to(url_for('/birds/index.php'));
     } else {
-        echo "User NOT found in database<br>";
+      $errors['login'] = "Log in was unsuccessful.";
     }
-    echo "</div>";
-    // END DEBUG OUTPUT
-
-    // Validations
-    if(is_blank($username)) {
-        $errors[] = "Username cannot be blank.";
-    }
-    if(is_blank($password)) {
-        $errors[] = "Password cannot be blank.";
-    }
-
-    // if no errors, try to login
-    if(empty($errors)) {
-        if($member && $member->verify_password($password)) {
-            $session->login($member);
-            $session->message('Login successful.');
-            redirect_to(url_for('/birds/index.php'));
-        } else {
-            $errors[] = "Log in was unsuccessful.";
-        }
-    }
+  }
 }
 ?>
 
@@ -69,20 +39,36 @@ if(is_post_request()) {
     <div class="login-form">
       <h1>Login</h1>
 
-      <?php echo display_errors($errors); ?>
+      <?php if (isset($errors['login'])) { ?>
+        <div class="errors">
+          <?php echo h($errors['login']); ?>
+        </div>
+      <?php } ?>
 
       <form action="login.php" method="post">
-        <div class="form-group">
+        <div class="form-group <?php echo isset($errors['username']) ? 'has-error' : ''; ?>">
           <label for="username">Username</label>
-          <input type="text" name="username" value="<?php echo h($username); ?>" id="username">
+          <div class="input-container">
+            <input type="text" name="username" value="<?php echo h($username); ?>" id="username">
+            <?php if (isset($errors['username'])) { ?>
+              <span class="field-error"><?php echo h($errors['username']); ?></span>
+            <?php } ?>
+          </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group <?php echo isset($errors['password']) ? 'has-error' : ''; ?>">
           <label for="password">Password</label>
-          <input type="password" name="password" value="" id="password">
+          <div class="input-container">
+            <input type="password" name="password" value="" id="password">
+            <?php if (isset($errors['password'])) { ?>
+              <span class="field-error"><?php echo h($errors['password']); ?></span>
+            <?php } ?>
+          </div>
         </div>
 
-        <input type="submit" name="submit" value="Log in">
+        <div class="form-buttons">
+          <input type="submit" name="submit" value="Log in">
+        </div>
       </form>
     </div>
   </div>
